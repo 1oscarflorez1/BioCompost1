@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recolecciones | BioCompost</title>
+  <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="sidebar"></aside>
+    <div class="contenido">
+      <header class="topbar d-flex align-items-center gap-2" id="topbar"></header>
+
+      <main class="p-3 p-lg-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <p class="texto-suave mb-0">Entradas de residuo orgánico: pesaje, fecha, origen y clasificación.</p>
+          <button class="btn btn-primary" id="btnNuevo"><i class="bi bi-plus-lg me-1"></i>Registrar recolección</button>
+        </div>
+
+        <div class="card mb-3 filtros">
+          <div class="card-body">
+            <form id="formFiltros" class="row g-2 align-items-end">
+              <div class="col-md-4 col-lg-3">
+                <label class="form-label" for="fTexto">Buscar</label>
+                <input type="search" class="form-control" id="fTexto" name="texto" placeholder="Proveedor o municipio">
+              </div>
+              <div class="col-6 col-md-4 col-lg-2">
+                <label class="form-label" for="fDesde">Desde</label>
+                <input type="date" class="form-control" id="fDesde" name="fecha_desde">
+              </div>
+              <div class="col-6 col-md-4 col-lg-2">
+                <label class="form-label" for="fHasta">Hasta</label>
+                <input type="date" class="form-control" id="fHasta" name="fecha_hasta">
+              </div>
+              <div class="col-6 col-md-4 col-lg-2">
+                <label class="form-label" for="fTipo">Tipo de residuo</label>
+                <select class="form-select" id="fTipo" name="tipo_residuo"></select>
+              </div>
+              <div class="col-6 col-md-4 col-lg-3">
+                <label class="form-label" for="fClasificacion">Clasificación</label>
+                <select class="form-select" id="fClasificacion" name="clasificacion"></select>
+              </div>
+              <div class="col-md-4 col-lg-3">
+                <label class="form-label" for="fProveedor">Proveedor</label>
+                <select class="form-select" id="fProveedor" name="id_proveedor" data-tipo="numero"></select>
+              </div>
+              <div class="col-6 col-md-4 col-lg-2">
+                <label class="form-label" for="fPila">Pila</label>
+                <select class="form-select" id="fPila" name="id_pila" data-tipo="numero"></select>
+              </div>
+              <div class="col-6 col-md-4 col-lg-3">
+                <div class="form-check form-switch mb-2">
+                  <input class="form-check-input" type="checkbox" role="switch" id="fSinPila" name="sin_pila" value="true">
+                  <label class="form-check-label small" for="fSinPila">Solo pendientes de asignar a pila</label>
+                </div>
+              </div>
+              <div class="col-md-12 col-lg-4 text-lg-end">
+                <button type="reset" class="btn btn-light"><i class="bi bi-x-circle me-1"></i>Limpiar filtros</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header d-flex flex-wrap justify-content-between gap-2">
+            <span>Recolecciones</span><span class="texto-suave small fw-normal" id="resumen"></span>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr><th>Fecha</th><th>Proveedor</th><th>Tipo</th><th class="numero">Peso (kg)</th>
+                    <th>Clasificación</th><th>Pila</th><th>Registró</th><th></th></tr>
+              </thead>
+              <tbody id="tabla"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalRecoleccion" tabindex="-1" aria-labelledby="tituloModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <form class="modal-content" id="formRecoleccion" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="tituloModal">Registrar recolección</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-danger d-none" data-alerta></div>
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label" for="id_proveedor">Proveedor / punto de origen *</label>
+              <select class="form-select" id="id_proveedor" name="id_proveedor" data-tipo="numero" required></select>
+              <div class="invalid-feedback">Seleccione el proveedor.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="fecha_recoleccion">Fecha *</label>
+              <input type="date" class="form-control" id="fecha_recoleccion" name="fecha_recoleccion" required>
+              <div class="invalid-feedback">Ingrese una fecha válida (no futura).</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="peso_kg">Peso en báscula (kg) *</label>
+              <input type="number" class="form-control" id="peso_kg" name="peso_kg" required min="0.01" max="50000" step="0.01">
+              <div class="invalid-feedback">Ingrese un peso entre 0,01 y 50.000 kg.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="tipo_residuo">Tipo de residuo *</label>
+              <select class="form-select" id="tipo_residuo" name="tipo_residuo" required></select>
+              <div class="invalid-feedback">Seleccione el tipo.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="clasificacion">Clasificación *</label>
+              <select class="form-select" id="clasificacion" name="clasificacion" required></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="id_pila">Pila de destino</label>
+              <select class="form-select" id="id_pila" name="id_pila" data-tipo="numero"></select>
+              <div class="form-text" id="ayudaPila">Opcional. Solo pilas que aún no han finalizado.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="observaciones">Observaciones <span id="obsObligatoria" class="d-none">*</span></label>
+              <textarea class="form-control" id="observaciones" name="observaciones" rows="2" maxlength="400"></textarea>
+              <div class="invalid-feedback">Indique el motivo de la clasificación.</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btnGuardar"><i class="bi bi-check-lg me-1"></i>Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/recolecciones.js"></script>
+</body>
+</html>

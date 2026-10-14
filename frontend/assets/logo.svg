@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="BioCompost">
+  <circle cx="32" cy="32" r="30" fill="#2f7d4a"/>
+  <path d="M46 16c-15 0-26 7-26 20 0 4 1 7 3 10 2-9 8-16 17-20-7 5-12 12-13 21 2 1 5 1 7 1 11 0 16-10 12-32z" fill="#e8f3ec"/>
+  <path d="M14 46c3 1 8 1 12-1" stroke="#c99a63" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>
