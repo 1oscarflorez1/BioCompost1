@@ -81,6 +81,11 @@ body {
     top: 0;
     height: 100vh;
   }
+  /* Si la pantalla es baja (o hay zoom), el menú se puede desplazar
+     y el botón "Cerrar sesión" del final siempre es alcanzable */
+  .sidebar .offcanvas-body {
+    overflow-y: auto;
+  }
 }
 .sidebar .offcanvas-header,
 .sidebar .offcanvas-body {

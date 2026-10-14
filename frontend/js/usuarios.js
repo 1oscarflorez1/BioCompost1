@@ -147,6 +147,8 @@ formulario.addEventListener('submit', async (evento) => {
       else await Api.post('/usuarios', datos);
       modal.hide();
       UI.toast(idEditando ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente');
+      // Si se editó a sí mismo, el nombre nuevo se ve de inmediato en el menú y la barra superior
+      if (idEditando === usuario.id_usuario) await UI.refrescarSesion();
       await refrescarRoles();
       cargar();
     } catch (error) {
@@ -191,12 +193,7 @@ formularioRol?.addEventListener('submit', async (evento) => {
       modalRol.hide();
       UI.toast(`Rol "${rol.nombre}" actualizado correctamente`);
       // Si es el rol del usuario conectado, se actualiza el nombre en el menú y la barra superior
-      if (rol.codigo === usuario.rol) {
-        const sesion = { ...Sesion.usuario(), rol_nombre: rol.nombre };
-        Sesion.guardar(Sesion.token(), sesion);
-        UI.dibujarMenu('usuarios', sesion);
-        UI.dibujarBarraSuperior('Usuarios y roles', sesion);
-      }
+      if (rol.codigo === usuario.rol) await UI.refrescarSesion();
       await refrescarRoles();
       cargar();
     } catch (error) {

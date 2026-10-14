@@ -57,9 +57,12 @@ const UI = {
       return null;
     }
     const usuario = Sesion.usuario();
+    this.pagina = pagina;
+    this.titulo = titulo;
     this.dibujarMenu(pagina, usuario);
     this.dibujarBarraSuperior(titulo, usuario);
     document.title = `${titulo} | BioCompost`;
+    this.refrescarSesion();
 
     // Oculta los elementos que solo puede usar el administrador
     if (!Sesion.esAdmin()) document.querySelectorAll('[data-solo-admin]').forEach((el) => el.remove());
@@ -73,6 +76,26 @@ const UI = {
       return null;
     }
     return usuario;
+  },
+
+  // Pide al backend los datos actuales del usuario (GET /api/auth/me).
+  // Así, si cambian su nombre, correo o rol, la sesión se actualiza sin volver a iniciar sesión.
+  async refrescarSesion() {
+    try {
+      const guardado = Sesion.usuario();
+      const actual = await Api.get('/auth/me');
+      if (JSON.stringify(actual) === JSON.stringify(guardado)) return;
+      Sesion.guardar(Sesion.token(), actual);
+      if (actual.rol !== guardado?.rol) {
+        location.reload(); // cambió el rol: se recarga para aplicar los permisos nuevos
+        return;
+      }
+      this.dibujarMenu(this.pagina, actual);
+      this.dibujarBarraSuperior(this.titulo, actual);
+      document.dispatchEvent(new CustomEvent('sesion-actualizada', { detail: actual }));
+    } catch {
+      // Sin conexión se conserva la sesión guardada; un 401 ya cierra la sesión en api.js
+    }
   },
 
   dibujarMenu(pagina, usuario) {
@@ -104,15 +127,33 @@ const UI = {
   },
 
   dibujarBarraSuperior(titulo, usuario) {
-    document.getElementById('topbar').innerHTML = `
+    const barra = document.getElementById('topbar');
+    barra.innerHTML = `
       <button class="btn btn-outline-secondary btn-sm d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-label="Abrir menú">
         <i class="bi bi-list fs-5"></i>
       </button>
       <h1>${titulo}</h1>
-      <div class="ms-auto d-flex align-items-center gap-2 small">
-        <span class="d-none d-sm-inline texto-suave">${this.escapar(usuario.nombre)}</span>
-        ${this.badge(usuario.rol, usuario.rol_nombre)}
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <span class="d-none d-md-inline">${this.badge(usuario.rol, usuario.rol_nombre)}</span>
+        <div class="dropdown">
+          <button class="btn btn-sm btn-light border dropdown-toggle d-flex align-items-center gap-2" type="button"
+                  data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menú del usuario">
+            <i class="bi bi-person-circle fs-5"></i>
+            <span class="d-none d-sm-inline text-truncate" style="max-width: 180px">${this.escapar(usuario.nombre)}</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            <li class="px-3 py-2">
+              <div class="fw-semibold">${this.escapar(usuario.nombre)}</div>
+              <div class="small texto-suave">${this.escapar(usuario.correo)}</div>
+              <div class="mt-1">${this.badge(usuario.rol, usuario.rol_nombre)}</div>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item text-danger" type="button" data-cerrar-sesion>
+              <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</button></li>
+          </ul>
+        </div>
       </div>`;
+    barra.querySelector('[data-cerrar-sesion]').addEventListener('click', () => Sesion.cerrar('Sesión cerrada correctamente.'));
   },
 
   // ---------------------------------------------------------------

@@ -1,10 +1,16 @@
 // Dashboard: indicadores calculados por el backend (GET /api/dashboard).
 
 const usuarioDashboard = UI.iniciar({ pagina: 'dashboard', titulo: 'Dashboard' });
+function saludar(usuario) {
+  document.getElementById('saludo').textContent = `Hola, ${usuario.nombre.split(' ')[0]}`;
+}
+
 if (usuarioDashboard) {
-  document.getElementById('saludo').textContent = `Hola, ${usuarioDashboard.nombre.split(' ')[0]}`;
+  saludar(usuarioDashboard);
   cargarDashboard();
 }
+// Si el nombre cambió desde la última vez, el saludo se actualiza
+document.addEventListener('sesion-actualizada', (evento) => saludar(evento.detail));
 
 async function cargarDashboard() {
   try {
