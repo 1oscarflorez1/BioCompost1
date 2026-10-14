@@ -1,9 +1,16 @@
-fastapi
-uvicorn[standard]
-oracledb
-pydantic
-python-dotenv
-pyjwt
-passlib[bcrypt]
-httpx
-requests
+# API
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic[email]>=2.7
+python-dotenv>=1.0
+
+# Base de datos: controlador oficial de Oracle (modo thin, no requiere Instant Client)
+oracledb>=2.4
+
+# Seguridad: tokens JWT y cifrado de contraseñas
+pyjwt>=2.8
+bcrypt>=4.1
+
+# Pruebas
+pytest>=8.0
+httpx>=0.27

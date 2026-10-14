@@ -3,11 +3,18 @@ __pycache__/
 *.py[cod]
 *.so
 .venv/
+venv/
 env/
+.pytest_cache/
 
-# Variables de entorno (¡Seguridad!)
+# Variables de entorno (¡Seguridad! Nunca subir credenciales)
 .env
 
-# IDEs
+# IDEs y herramientas locales
 .vscode/
 .idea/
+.claude/
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
